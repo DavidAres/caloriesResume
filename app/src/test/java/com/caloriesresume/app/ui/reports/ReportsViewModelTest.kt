@@ -43,7 +43,21 @@ class ReportsViewModelTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
         val summary = NutritionSummary(
@@ -71,7 +85,21 @@ class ReportsViewModelTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
         val summary = NutritionSummary(
@@ -105,7 +133,7 @@ class ReportsViewModelTest {
     }
 
     @Test
-    fun `getSummaryAsString should return formatted string`() {
+    fun `getSummaryAsString should return formatted string`() = runTest {
         val summary = NutritionSummary(
             calories = 500.0,
             protein = 25.0,
@@ -123,14 +151,21 @@ class ReportsViewModelTest {
             entryCount = 1
         )
 
-        viewModel.uiState.value = ReportsUiState(summary = summary, period = ReportPeriod.DAILY)
+        whenever(getFoodEntriesByDateRangeUseCase(any(), any()))
+            .thenReturn(flowOf(emptyList()))
+        whenever(calculateNutritionSummaryUseCase(emptyList()))
+            .thenReturn(summary)
 
-        val result = viewModel.getSummaryAsString()
+        viewModel.uiState.test {
+            skipItems(1)
+            
+            val result = viewModel.getSummaryAsString()
 
-        assertTrue(result.contains("Resumen Nutricional"))
-        assertTrue(result.contains("DAILY"))
-        assertTrue(result.contains("500"))
-        assertTrue(result.contains("25"))
-        assertTrue(result.contains("1"))
+            assertTrue(result.contains("Resumen Nutricional"))
+            assertTrue(result.contains("Diario"))
+            assertTrue(result.contains("500"))
+            assertTrue(result.contains("25"))
+            assertTrue(result.contains("1"))
+        }
     }
 }

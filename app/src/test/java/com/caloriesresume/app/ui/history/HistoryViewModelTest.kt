@@ -47,7 +47,21 @@ class HistoryViewModelTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test1",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
 
@@ -80,7 +94,21 @@ class HistoryViewModelTest {
                 id = 1L,
                 timestamp = 1500L,
                 imageUri = "content://test",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
 
@@ -107,7 +135,21 @@ class HistoryViewModelTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
 

@@ -89,7 +89,7 @@ class AdviceViewModelTest {
         val apiKey = "test-api-key"
         val advice = "Eat more vegetables"
 
-        whenever(repository.getDietaryAdvice(summary, apiKey))
+        whenever(getDietaryAdviceUseCase(summary, apiKey))
             .thenReturn(Result.success(advice))
 
         viewModel.getDietaryAdvice(summary, apiKey)

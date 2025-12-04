@@ -32,12 +32,40 @@ class GetAllFoodEntriesUseCaseTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test1",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             ),
             FoodEntry(
                 id = 2L,
                 imageUri = "content://test2",
-                nutritionData = NutritionData(calories = 300.0, protein = 15.0, carbohydrates = 30.0, fat = 10.0)
+                nutritionData = NutritionData(
+                    calories = 300.0,
+                    protein = 15.0,
+                    carbohydrates = 30.0,
+                    fat = 10.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
 

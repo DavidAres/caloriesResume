@@ -37,7 +37,14 @@ class CalculateNutritionSummaryUseCaseTest {
                     carbohydrates = 50.0,
                     fat = 20.0,
                     fiber = 10.0,
-                    iron = 5.0
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = 5.0,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
                 )
             )
         )
@@ -63,7 +70,16 @@ class CalculateNutritionSummaryUseCaseTest {
                     calories = 500.0,
                     protein = 25.0,
                     carbohydrates = 50.0,
-                    fat = 20.0
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
                 )
             ),
             FoodEntry(
@@ -73,7 +89,16 @@ class CalculateNutritionSummaryUseCaseTest {
                     calories = 300.0,
                     protein = 15.0,
                     carbohydrates = 30.0,
-                    fat = 10.0
+                    fat = 10.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
                 )
             )
         )
@@ -99,7 +124,14 @@ class CalculateNutritionSummaryUseCaseTest {
                     carbohydrates = 50.0,
                     fat = 20.0,
                     fiber = null,
-                    iron = null
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
                 )
             )
         )

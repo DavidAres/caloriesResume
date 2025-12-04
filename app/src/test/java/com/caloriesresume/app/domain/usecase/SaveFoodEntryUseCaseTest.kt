@@ -36,13 +36,13 @@ class SaveFoodEntryUseCaseTest {
         )
         val expectedId = 1L
 
-        whenever(repository.saveFoodEntry(imageUri, nutritionInfo))
+        whenever(repository.saveFoodEntry(imageUri, nutritionInfo, null))
             .thenReturn(expectedId)
 
-        val result = useCase(imageUri, nutritionInfo)
+        val result = useCase(imageUri, nutritionInfo, null)
 
         assertEquals(expectedId, result)
-        verify(repository).saveFoodEntry(imageUri, nutritionInfo)
+        verify(repository).saveFoodEntry(imageUri, nutritionInfo, null)
     }
 }
 

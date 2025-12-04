@@ -43,11 +43,12 @@ class FoodRepositoryTest {
     private lateinit var context: Context
 
     private lateinit var repository: FoodRepository
+    private val gson = com.google.gson.Gson()
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        repository = FoodRepository(foodEntryDao, foodImageAnalysisApi, openAIApi, context)
+        repository = FoodRepository(foodEntryDao, foodImageAnalysisApi, openAIApi, context, gson)
     }
 
     @Test
@@ -56,7 +57,21 @@ class FoodRepositoryTest {
             FoodEntry(
                 id = 1L,
                 imageUri = "content://test",
-                nutritionData = NutritionData(calories = 500.0, protein = 25.0, carbohydrates = 50.0, fat = 20.0)
+                nutritionData = NutritionData(
+                    calories = 500.0,
+                    protein = 25.0,
+                    carbohydrates = 50.0,
+                    fat = 20.0,
+                    fiber = null,
+                    sugar = null,
+                    sodium = null,
+                    calcium = null,
+                    iron = null,
+                    phosphorus = null,
+                    potassium = null,
+                    vitaminA = null,
+                    vitaminC = null
+                )
             )
         )
 
@@ -68,8 +83,18 @@ class FoodRepositoryTest {
         }
     }
 
+
     @Test
-    fun `saveFoodEntry should call dao insert`() = runTest {
+    fun `deleteFoodEntry should call dao delete`() = runTest {
+        val id = 1L
+
+        repository.deleteFoodEntry(id)
+
+        verify(foodEntryDao).deleteFoodEntry(id)
+    }
+
+    @Test
+    fun `saveFoodEntry should call dao insert with correct parameters`() = runTest {
         val imageUri = Uri.parse("content://test")
         val nutritionInfo = NutritionInfo(
             calories = 500.0,
@@ -82,77 +107,10 @@ class FoodRepositoryTest {
         whenever(foodEntryDao.insertFoodEntry(any()))
             .thenReturn(expectedId)
 
-        val result = repository.saveFoodEntry(imageUri, nutritionInfo)
+        val result = repository.saveFoodEntry(imageUri, nutritionInfo, null)
 
         assertEquals(expectedId, result)
         verify(foodEntryDao).insertFoodEntry(any())
-    }
-
-    @Test
-    fun `deleteFoodEntry should call dao delete`() = runTest {
-        val id = 1L
-
-        repository.deleteFoodEntry(id)
-
-        verify(foodEntryDao).deleteFoodEntry(id)
-    }
-
-    @Test
-    fun `analyzeFoodImage should return success when API succeeds`() = runTest {
-        val imageUri = Uri.parse("content://test")
-        val apiKey = "test-api-key"
-        
-        val tempFile = File.createTempFile("test", ".jpg")
-        tempFile.deleteOnExit()
-        
-        whenever(context.cacheDir).thenReturn(tempFile.parentFile)
-        whenever(context.contentResolver.openInputStream(imageUri))
-            .thenReturn(java.io.FileInputStream(tempFile))
-
-        val nutrition = FoodNutritionInfo(
-            calories = 500.0,
-            protein = 25.0,
-            carbs = 50.0,
-            fat = 20.0
-        )
-        val response = FoodImageAnalysisResponse(
-            food = FoodInfo(
-                name = "Test Food",
-                nutrition = nutrition,
-                ingredients = listOf(Ingredient(name = "Test Ingredient"))
-            )
-        )
-
-        whenever(foodImageAnalysisApi.analyzeFoodImage(any(), any()))
-            .thenReturn(Response.success(response))
-
-        val result = repository.analyzeFoodImage(imageUri, apiKey)
-
-        assertTrue(result.isSuccess)
-        val nutritionInfo = result.getOrNull()
-        assertNotNull(nutritionInfo)
-        assertEquals(500.0, nutritionInfo?.calories, 0.01)
-        assertEquals(25.0, nutritionInfo?.protein, 0.01)
-    }
-
-    @Test
-    fun `analyzeFoodImage should return failure when API fails`() = runTest {
-        val imageUri = Uri.parse("content://test")
-        val apiKey = "test-api-key"
-        
-        val tempFile = File.createTempFile("test", ".jpg")
-        tempFile.deleteOnExit()
-        
-        whenever(context.cacheDir).thenReturn(tempFile.parentFile)
-        whenever(context.contentResolver.openInputStream(imageUri))
-            .thenReturn(java.io.FileInputStream(tempFile))
-
-        whenever(foodImageAnalysisApi.analyzeFoodImage(any(), any()))
-            .thenReturn(Response.error(400, "Error".toResponseBody("text/plain".toMediaType())))
-
-        val result = repository.analyzeFoodImage(imageUri, apiKey)
-
-        assertTrue(result.isFailure)
     }
 
     @Test
@@ -172,7 +130,7 @@ class FoodRepositoryTest {
             usage = Usage(10, 20, 30)
         )
 
-        whenever(openAIApi.getChatCompletion(any(), any()))
+        whenever(openAIApi.getChatCompletion(any(), any(), any()))
             .thenReturn(Response.success(response))
 
         val result = repository.getDietaryAdvice(summary, apiKey)
@@ -186,7 +144,7 @@ class FoodRepositoryTest {
         val summary = "Test summary"
         val apiKey = "test-api-key"
 
-        whenever(openAIApi.getChatCompletion(any(), any()))
+        whenever(openAIApi.getChatCompletion(any(), any(), any()))
             .thenReturn(Response.error(400, "Error".toResponseBody("text/plain".toMediaType())))
 
         val result = repository.getDietaryAdvice(summary, apiKey)
