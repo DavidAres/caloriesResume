@@ -1,0 +1,156 @@
+package com.caloriesresume.app.ui.analysis
+
+import android.net.Uri
+import app.cash.turbine.test
+import com.caloriesresume.app.domain.model.NutritionInfo
+import com.caloriesresume.app.domain.usecase.AnalyzeFoodImageUseCase
+import com.caloriesresume.app.domain.usecase.SaveFoodEntryUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class AnalysisViewModelTest {
+
+    @Mock
+    private lateinit var analyzeFoodImageUseCase: AnalyzeFoodImageUseCase
+
+    @Mock
+    private lateinit var saveFoodEntryUseCase: SaveFoodEntryUseCase
+
+    private lateinit var viewModel: AnalysisViewModel
+
+    @Before
+    fun setup() {
+        MockitoAnnotations.openMocks(this)
+        viewModel = AnalysisViewModel(analyzeFoodImageUseCase, saveFoodEntryUseCase)
+    }
+
+    @Test
+    fun `initial state should be correct`() = runTest {
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertFalse(state.isLoading)
+            assertNull(state.nutritionInfo)
+            assertNull(state.error)
+            assertFalse(state.isSaved)
+        }
+    }
+
+    @Test
+    fun `analyzeImage should update state to loading then success`() = runTest {
+        val imageUri = Uri.parse("content://test")
+        val apiKey = "test-api-key"
+        val nutritionInfo = NutritionInfo(
+            calories = 500.0,
+            protein = 25.0,
+            carbohydrates = 50.0,
+            fat = 20.0
+        )
+
+        whenever(analyzeFoodImageUseCase(imageUri, apiKey))
+            .thenReturn(Result.success(nutritionInfo))
+
+        viewModel.uiState.test {
+            viewModel.analyzeImage(imageUri, apiKey)
+            
+            val loadingState = awaitItem()
+            assertTrue(loadingState.isLoading)
+            assertNull(loadingState.error)
+            
+            val successState = awaitItem()
+            assertFalse(successState.isLoading)
+            assertEquals(nutritionInfo, successState.nutritionInfo)
+            assertNull(successState.error)
+        }
+    }
+
+    @Test
+    fun `analyzeImage should update state to loading then error`() = runTest {
+        val imageUri = Uri.parse("content://test")
+        val apiKey = "test-api-key"
+        val errorMessage = "API Error"
+
+        whenever(analyzeFoodImageUseCase(imageUri, apiKey))
+            .thenReturn(Result.failure(Exception(errorMessage)))
+
+        viewModel.uiState.test {
+            viewModel.analyzeImage(imageUri, apiKey)
+            
+            val loadingState = awaitItem()
+            assertTrue(loadingState.isLoading)
+            
+            val errorState = awaitItem()
+            assertFalse(errorState.isLoading)
+            assertEquals(errorMessage, errorState.error)
+            assertNull(errorState.nutritionInfo)
+        }
+    }
+
+    @Test
+    fun `saveFoodEntry should update state to saved when nutritionInfo exists`() = runTest {
+        val imageUri = Uri.parse("content://test")
+        val apiKey = "test-api-key"
+        val nutritionInfo = NutritionInfo(
+            calories = 500.0,
+            protein = 25.0,
+            carbohydrates = 50.0,
+            fat = 20.0
+        )
+
+        whenever(analyzeFoodImageUseCase(imageUri, apiKey))
+            .thenReturn(Result.success(nutritionInfo))
+        
+        whenever(saveFoodEntryUseCase(imageUri, nutritionInfo))
+            .thenReturn(1L)
+
+        viewModel.uiState.test {
+            viewModel.analyzeImage(imageUri, apiKey)
+            
+            skipItems(2)
+            
+            viewModel.saveFoodEntry(imageUri, apiKey)
+            
+            val savedState = awaitItem()
+            assertTrue(savedState.isSaved)
+            assertEquals(nutritionInfo, savedState.nutritionInfo)
+        }
+        
+        verify(saveFoodEntryUseCase).invoke(imageUri, nutritionInfo)
+    }
+
+    @Test
+    fun `resetState should reset ui state`() = runTest {
+        val imageUri = Uri.parse("content://test")
+        val apiKey = "test-api-key"
+        val nutritionInfo = NutritionInfo(
+            calories = 500.0,
+            protein = 25.0,
+            carbohydrates = 50.0,
+            fat = 20.0
+        )
+
+        whenever(analyzeFoodImageUseCase(imageUri, apiKey))
+            .thenReturn(Result.success(nutritionInfo))
+
+        viewModel.analyzeImage(imageUri, apiKey)
+        
+        viewModel.uiState.test {
+            skipItems(2)
+            
+            viewModel.resetState()
+            
+            val resetState = awaitItem()
+            assertFalse(resetState.isLoading)
+            assertNull(resetState.nutritionInfo)
+            assertNull(resetState.error)
+            assertFalse(resetState.isSaved)
+        }
+    }
+}
