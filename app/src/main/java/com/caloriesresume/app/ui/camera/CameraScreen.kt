@@ -31,8 +31,7 @@ import java.util.concurrent.Executor
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraScreen(
-    onImageCaptured: (Uri) -> Unit,
-    onGallerySelected: () -> Unit
+    onImageCaptured: (Uri) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -129,23 +128,12 @@ fun CameraScreen(
             }
         }
 
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = {
-                    onGallerySelected()
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Galería")
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
             Button(
                 onClick = {
                     imageCapture?.let { capture ->
@@ -157,9 +145,9 @@ fun CameraScreen(
                     }
                 },
                 enabled = hasCameraPermission && imageCapture != null,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth(0.6f)
             ) {
-                Text("Capturar ${if (imageCapture != null) "✓" else "✗"}")
+                Text("Capturar")
             }
         }
     }

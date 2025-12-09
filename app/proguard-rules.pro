@@ -2,3 +2,5 @@
 -keep class com.caloriesresume.app.domain.model.** { *; }
 
 
+
+

@@ -13,6 +13,7 @@ data class FoodEntry(
     val timestamp: Long = System.currentTimeMillis(),
     val imageUri: String,
     val nutritionData: NutritionData,
+    val dishName: String? = null,
     val foodType: String? = null,
     val foodGroups: String? = null,
     val recipes: String? = null,

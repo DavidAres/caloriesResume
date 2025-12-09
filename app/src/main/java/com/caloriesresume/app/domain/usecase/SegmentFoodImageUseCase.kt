@@ -12,3 +12,5 @@ class SegmentFoodImageUseCase @Inject constructor(
     }
 }
 
+
+

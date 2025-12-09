@@ -1,6 +1,7 @@
 package com.caloriesresume.app.ui.history
 
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,8 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    viewModel: HistoryViewModel = hiltViewModel()
+    viewModel: HistoryViewModel = hiltViewModel(),
+    onEntryClick: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -57,6 +59,7 @@ fun HistoryScreen(
                 ) { entry ->
                     FoodEntryCard(
                         entry = entry,
+                        onClick = { onEntryClick(entry.id) },
                         onDelete = { viewModel.deleteFoodEntry(entry.id) }
                     )
                 }
@@ -68,6 +71,7 @@ fun HistoryScreen(
 @Composable
 fun FoodEntryCard(
     entry: FoodEntry,
+    onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     val context = LocalContext.current
@@ -75,7 +79,9 @@ fun FoodEntryCard(
     val dateString = dateFormat.format(Date(entry.timestamp))
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(

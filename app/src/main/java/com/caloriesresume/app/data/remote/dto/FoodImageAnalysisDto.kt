@@ -80,3 +80,5 @@ data class NutriScore(
     @SerializedName("nutri_score_standardized") val nutriScoreStandardized: Int? = null
 )
 
+
+

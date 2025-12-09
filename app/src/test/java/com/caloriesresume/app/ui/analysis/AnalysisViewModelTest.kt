@@ -108,7 +108,7 @@ class AnalysisViewModelTest {
             fat = 20.0
         )
         
-        whenever(saveFoodEntryUseCase(imageUri, nutritionInfo, null))
+        whenever(saveFoodEntryUseCase(imageUri, nutritionInfo, null, null))
             .thenReturn(1L)
 
         // Simular que tenemos nutritionInfo en el estado

@@ -1,6 +1,11 @@
 package com.caloriesresume.app.data.remote.api
 
-import com.caloriesresume.app.data.remote.dto.*
+import com.caloriesresume.app.data.remote.dto.DishConfirmationRequest
+import com.caloriesresume.app.data.remote.dto.DishConfirmationResponse
+import com.caloriesresume.app.data.remote.dto.IngredientsRequest
+import com.caloriesresume.app.data.remote.dto.IngredientsResponse
+import com.caloriesresume.app.data.remote.dto.NutritionalInfoRequest
+import com.caloriesresume.app.data.remote.dto.NutritionalInfoResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody

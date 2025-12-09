@@ -220,7 +220,7 @@ class FoodRepository @Inject constructor(
     }
     
 
-    override suspend fun saveFoodEntry(imageUri: Uri, nutritionInfo: NutritionInfo, logMealResponse: LogMealResponse?): Long {
+    override suspend fun saveFoodEntry(imageUri: Uri, nutritionInfo: NutritionInfo, dishName: String?, logMealResponse: LogMealResponse?): Long {
         return withContext(Dispatchers.IO) {
             val nutritionData = nutritionInfo.toNutritionData()
             
@@ -239,6 +239,7 @@ class FoodRepository @Inject constructor(
             val foodEntry = FoodEntry(
                 imageUri = imageUri.toString(),
                 nutritionData = nutritionData,
+                dishName = dishName,
                 foodType = logMealResponse?.foodType?.name,
                 foodGroups = foodGroupsJson,
                 recipes = recipesJson,
@@ -261,27 +262,71 @@ class FoodRepository @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val prompt = """
-                    Eres un nutricionista experto. Analiza la siguiente información nutricional 
-                    del consumo diario/semanal/mensual de un usuario obtenida mediante análisis 
-                    de imágenes de comida con LogMeal API y proporciona consejos personalizados 
-                    sobre qué debería consumir más o menos para llevar una dieta equilibrada. 
-                    Sé específico y práctico en tus recomendaciones.
+                    Eres un nutricionista experto. Analiza detalladamente la siguiente información 
+                    nutricional semanal de un usuario obtenida mediante análisis de imágenes de 
+                    comida con LogMeal API y genera una dieta completa para la siguiente semana 
+                    (7 días) basándote EXCLUSIVAMENTE en estos datos para equilibrar los déficits 
+                    nutricionales detectados.
                     
-                    Información nutricional:
+                    Información nutricional semanal:
                     $nutritionSummary
                     
+                    PROCESO DE ANÁLISIS OBLIGATORIO:
+                    1. Analiza los datos nutricionales semanales proporcionados
+                    2. Identifica los déficits nutricionales (nutrientes por debajo de las 
+                       recomendaciones diarias/semanales)
+                    3. Identifica los excesos nutricionales (nutrientes por encima de las 
+                       recomendaciones)
+                    4. Diseña una dieta que corrija específicamente estos desequilibrios
+                    5. Prioriza alimentos ricos en los nutrientes deficitarios
+                    6. Reduce o equilibra los nutrientes en exceso
+                    
+                    REQUISITOS OBLIGATORIOS PARA LA DIETA:
+                    - La dieta DEBE estar basada en los datos nutricionales semanales proporcionados
+                    - DEBE corregir los déficits identificados en los datos
+                    - DEBE equilibrar los excesos detectados
+                    - TODOS los días de la semana (Lunes a Domingo) DEBEN tener desayuno, comida y cena
+                    - NO puedes omitir ninguna comida en ningún día
+                    - TODOS los platos deben ser DIFERENTES entre días (máxima variedad)
+                    - No repitas el mismo plato en diferentes días de la semana
+                    - Varía los tipos de proteínas, carbohidratos y verduras a lo largo de la semana
+                    - Selecciona ingredientes específicos que aporten los nutrientes deficitarios
+                    
+                    Para cada día de la semana (Lunes a Domingo), debes especificar OBLIGATORIAMENTE:
+                    1. DESAYUNO: Nombre del plato diferente a los demás días, ingredientes con 
+                       cantidades exactas (en gramos, unidades o medidas caseras como tazas, 
+                       cucharadas, etc.) que contribuyan a equilibrar los déficits nutricionales
+                    2. COMIDA: Nombre del plato diferente a los demás días, ingredientes con 
+                       cantidades exactas que contribuyan a equilibrar los déficits nutricionales
+                    3. CENA: Nombre del plato diferente a los demás días, ingredientes con 
+                       cantidades exactas que contribuyan a equilibrar los déficits nutricionales
+                    
+                    Formato de respuesta:
+                    - Usa un formato claro y estructurado día por día
+                    - Para cada plato, lista todos los ingredientes con sus cantidades específicas
+                    - Las cantidades deben ser precisas y prácticas (ej: "200g de pollo", 
+                      "1 taza de arroz", "2 huevos", "100g de brócoli")
+                    - Incluye una breve descripción de cómo preparar cada plato si es relevante
+                    - Asegúrate de que la dieta sea variada, equilibrada, sin repeticiones y 
+                      específicamente diseñada para corregir los déficits nutricionales identificados
+                    
                     Considera que esta información proviene de análisis de imágenes de comida 
-                    reales, por lo que los valores pueden tener variaciones. Proporciona consejos 
-                    en español, estructurados y fáciles de seguir, enfocándote en mejorar el 
-                    equilibrio nutricional basándote en los datos proporcionados.
+                    reales, por lo que los valores pueden tener variaciones. La dieta debe 
+                    estar en español, ser fácil de seguir y estar directamente relacionada con 
+                    los datos nutricionales semanales proporcionados para equilibrar los déficits.
+                    
+                    IMPORTANTE: Debes proporcionar TODA la dieta completa en una sola respuesta. 
+                    NO digas que continuarás en la siguiente respuesta ni que la información 
+                    está incompleta. Completa todos los 7 días con todas las comidas en esta respuesta.
                 """.trimIndent()
 
                 val request = OpenAIRequest(
                     model = "gpt-3.5-turbo",
                     messages = listOf(
-                        Message(role = "system", content = "Eres un nutricionista experto y amigable."),
+                        Message(role = "system", content = "Eres un nutricionista experto y amigable especializado en crear dietas personalizadas completas con recetas detalladas e ingredientes específicos."),
                         Message(role = "user", content = prompt)
-                    )
+                    ),
+                    maxTokens = 4000
                 )
 
                 val response = openAIApi.getChatCompletion(
@@ -291,7 +336,13 @@ class FoodRepository @Inject constructor(
 
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body() ?: return@withContext Result.failure(Exception("Respuesta vacía de la API"))
-                    val advice = body.choices?.firstOrNull()?.message?.content
+                    val choice = body.choices?.firstOrNull()
+                    
+                    if (choice?.finishReason == "length") {
+                        return@withContext Result.failure(Exception("La respuesta fue truncada. Por favor, intenta con un resumen más corto o contacta al soporte."))
+                    }
+                    
+                    val advice = choice?.message?.content
                         ?: "No se pudo generar consejo dietético."
                     Result.success(advice)
                 } else {

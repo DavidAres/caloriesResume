@@ -107,7 +107,7 @@ class FoodRepositoryTest {
         whenever(foodEntryDao.insertFoodEntry(any()))
             .thenReturn(expectedId)
 
-        val result = repository.saveFoodEntry(imageUri, nutritionInfo, null)
+        val result = repository.saveFoodEntry(imageUri, nutritionInfo, null, null)
 
         assertEquals(expectedId, result)
         verify(foodEntryDao).insertFoodEntry(any())

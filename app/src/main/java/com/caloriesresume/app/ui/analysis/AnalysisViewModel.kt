@@ -93,8 +93,10 @@ class AnalysisViewModel @Inject constructor(
     fun saveFoodEntry(imageUri: Uri) {
         viewModelScope.launch {
             val nutritionInfo = _uiState.value.nutritionInfo
+            val selectedCandidate = _uiState.value.selectedCandidate
             if (nutritionInfo != null) {
-                saveFoodEntryUseCase(imageUri, nutritionInfo, null)
+                val dishName = selectedCandidate?.name
+                saveFoodEntryUseCase(imageUri, nutritionInfo, dishName, null)
                 _uiState.value = _uiState.value.copy(isSaved = true)
             }
         }

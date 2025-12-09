@@ -84,3 +84,5 @@ data class LogMealNutriScore(
     val nutriScoreStandardized: Int?
 )
 
+
+
