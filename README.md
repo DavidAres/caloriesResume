@@ -5,7 +5,9 @@ Aplicación Android para análisis nutricional de comidas mediante IA.
 ## Características
 
 - Captura de fotos de comida desde la cámara o galería
-- Análisis nutricional mediante Spoonacular API
+- Análisis nutricional mediante LogMeal API
+- Segmentación de alimentos con selección de platos candidatos
+- Información nutricional detallada (calorías, macronutrientes, micronutrientes)
 - Almacenamiento local de historial de comidas
 - Reportes diarios, semanales y mensuales
 - Consejos dietéticos personalizados mediante OpenAI GPT-3.5-turbo
@@ -24,12 +26,12 @@ El proyecto sigue **Clean Architecture** con las siguientes capas:
 2. Crea un archivo `local.properties` en la raíz del proyecto con tus API keys:
 
 ```
-SPOONACULAR_API_KEY=tu_api_key_aqui
+LOGMEAL_API_KEY=tu_api_key_aqui
 OPENAI_API_KEY=tu_api_key_aqui
 ```
 
 3. Obtén tus API keys:
-   - **Spoonacular**: Regístrate en [RapidAPI](https://rapidapi.com/spoonacular/api/spoonacular-recipe-food-nutrition-v1) (plan gratuito: 150 requests/día)
+   - **LogMeal**: Regístrate en [LogMeal](https://www.logmeal.es/) y obtén tu API key desde el dashboard
    - **OpenAI**: Regístrate en [OpenAI](https://platform.openai.com/) y obtén tu API key
 
 4. Abre el proyecto en Android Studio y sincroniza Gradle
@@ -68,8 +70,10 @@ app/
 │   ├── repository/         # Interfaces de repositorios
 │   └── usecase/            # Casos de uso
 ├── ui/
+│   ├── splash/             # Pantalla de inicio
+│   ├── home/               # Pantalla principal
 │   ├── camera/             # Pantalla de cámara
-│   ├── analysis/           # Pantalla de análisis
+│   ├── analysis/           # Pantalla de análisis y selección de platos
 │   ├── history/            # Historial de comidas
 │   ├── reports/            # Reportes nutricionales
 │   └── advice/             # Consejos dietéticos
@@ -79,12 +83,14 @@ app/
 ## Uso
 
 1. Abre la aplicación
-2. Toma una foto de tu comida o selecciona una de la galería
-3. Espera a que se analice la imagen
-4. Revisa la información nutricional
-5. Guarda la entrada para agregarla a tu historial
-6. Consulta reportes diarios, semanales o mensuales
-7. Obtén consejos dietéticos personalizados basados en tu consumo
+2. Desde la pantalla principal, selecciona "Cámara" para tomar una foto o "Galería" para seleccionar una imagen
+3. La aplicación segmentará la imagen y mostrará los platos candidatos detectados
+4. Selecciona el plato que deseas analizar
+5. Espera a que se obtenga la información nutricional detallada
+6. Revisa los datos nutricionales (calorías, proteínas, carbohidratos, grasas, vitaminas, minerales, etc.)
+7. Guarda la entrada para agregarla a tu historial
+8. Consulta reportes diarios, semanales o mensuales
+9. Obtén consejos dietéticos personalizados y planes de dieta semanales basados en tu consumo
 
 ## Permisos
 
