@@ -6,6 +6,7 @@ data class OpenAIRequest(
     val model: String,
     val messages: List<Message>,
     val temperature: Double = 0.7,
+    @SerializedName("max_tokens")
     val maxTokens: Int? = null
 )
 
